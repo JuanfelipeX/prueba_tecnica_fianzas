@@ -6,7 +6,7 @@ function ListaProductos() {
   const [precio, setPrecio] = useState('');
   const [valor, setValor] = useState('');
   const [stock, setStock] = useState('');
-  const [productoActualizado, setProductoActualizado] = useState(null);
+  const [editandoProducto, setEditandoProducto] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:3000/producto')
@@ -42,7 +42,7 @@ function ListaProductos() {
   };
 
   const handleEditarProducto = (producto) => {
-    setProductoActualizado(producto);
+    setEditandoProducto(producto);
     setNombre(producto.nombre);
     setPrecio(producto.precio);
     setValor(producto.valor);
@@ -66,12 +66,9 @@ function ListaProductos() {
     })
     .then(response => response.json())
     .then(data => {
-      // Actualizar el producto en la lista
       const productosActualizados = productos.map(p => (p.id === data.id ? data : p));
       setProductos(productosActualizados);
-
-      // Limpiar el estado de productoActualizado y los campos de entrada
-      setProductoActualizado(null);
+      setEditandoProducto(null);
       setNombre('');
       setPrecio('');
       setValor('');
@@ -80,100 +77,109 @@ function ListaProductos() {
     .catch(error => console.error('Error updating product:', error));
   };
 
-  const handleBorrarProducto = (producto) => {
-    fetch(`http://localhost:3000/producto/${producto.id}`, {
-      method: 'DELETE'
-    })
-    .then(() => {
-      // Eliminar el producto de la lista
-      const productosActualizados = productos.filter(p => p.id !== producto.id);
-      setProductos(productosActualizados);
-    })
-    .catch(error => console.error('Error deleting product:', error));
-  };
-
   const handleCancelarEdicion = () => {
-    setProductoActualizado(null);
+    setEditandoProducto(null);
     setNombre('');
     setPrecio('');
     setValor('');
     setStock('');
   };
 
+  const handleBorrarProducto = (producto) => {
+    fetch(`http://localhost:3000/producto/${producto.id}`, {
+      method: 'DELETE'
+    })
+    .then(() => {
+      const productosActualizados = productos.filter(p => p.id !== producto.id);
+      setProductos(productosActualizados);
+    })
+    .catch(error => console.error('Error deleting product:', error));
+  };
+
   return (
-    <div>
-      <h1>Lista de Productos</h1>
-      <ul>
+    <div className="container mt-5">
+      <h1 className="mb-4">Lista de Productos</h1>
+      <ul className="list-group">
         {productos.map(producto => (
-          <li key={producto.id}>
-            <p>Nombre: {producto.nombre}</p>
-            <p>Precio: {producto.precio}</p>
-            <p>Valor: {producto.valor}</p>
-            <p>Stock: {producto.stock}</p>
-            {productoActualizado && productoActualizado.id === producto.id ? (
+          <li key={producto.id} className="list-group-item">
+            <p><strong>Nombre:</strong> {producto.nombre}</p>
+            <p><strong>Precio:</strong> ${producto.precio}</p>
+            <p><strong>Valor:</strong> ${producto.valor}</p>
+            <p><strong>Stock:</strong> {producto.stock}</p>
+            {editandoProducto && editandoProducto.id === producto.id ? (
               <div>
                 <input
                   type="text"
+                  className="form-control mb-2"
                   placeholder="Nuevo Nombre"
                   value={nombre}
                   onChange={e => setNombre(e.target.value)}
                 />
                 <input
                   type="number"
+                  className="form-control mb-2"
                   placeholder="Nuevo Precio"
                   value={precio}
                   onChange={e => setPrecio(e.target.value)}
                 />
                 <input
                   type="number"
+                  className="form-control mb-2"
                   placeholder="Nuevo Valor"
                   value={valor}
                   onChange={e => setValor(e.target.value)}
                 />
                 <input
                   type="number"
+                  className="form-control mb-2"
                   placeholder="Nuevo Stock"
                   value={stock}
                   onChange={e => setStock(e.target.value)}
                 />
-                <button onClick={() => handleActualizarProducto(producto)}>Guardar</button>
-                <button onClick={handleCancelarEdicion}>Cancelar</button>
+                <button className="btn btn-success mr-2" onClick={() => handleActualizarProducto(producto)}>Guardar</button>
+                <button className="btn btn-secondary" onClick={handleCancelarEdicion}>Cancelar</button>
               </div>
             ) : (
               <div>
-                <button onClick={() => handleEditarProducto(producto)}>Editar</button>
-                <button onClick={() => handleBorrarProducto(producto)}>Borrar</button>
+                <button className="btn btn-primary mr-2" onClick={() => handleEditarProducto(producto)}>Editar</button>
+                <button className="btn btn-danger" onClick={() => handleBorrarProducto(producto)}>Borrar</button>
               </div>
             )}
           </li>
         ))}
       </ul>
-      <h2>Crear Nuevo Producto</h2>
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={e => setNombre(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Precio"
-        value={precio}
-        onChange={e => setPrecio(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Valor"
-        value={valor}
-        onChange={e => setValor(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Stock"
-        value={stock}
-        onChange={e => setStock(e.target.value)}
-      />
-      <button onClick={handleCrearProducto}>Crear Producto</button>
+      <h2 className="mt-4">Crear Nuevo Producto</h2>
+      <div className="form-group mt-2">
+        <input
+          type="text"
+          className="form-control mt-2"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={e => setNombre(e.target.value)}
+        />
+        <input
+          type="number"
+          className="form-control mt-2"
+          placeholder="Precio"
+          value={precio}
+          onChange={e => setPrecio(e.target.value)}
+        />
+        <input
+          type="number"
+          className="form-control mt-2"
+          placeholder="Valor"
+          value={valor}
+          onChange={e => setValor(e.target.value)}
+        />
+        <input
+          type="number"
+          className="form-control mt-2"
+          placeholder="Stock"
+          value={stock}
+          onChange={e => setStock(e.target.value)}
+        />
+        <button className="btn btn-primary mt-2" onClick={handleCrearProducto}>Crear Producto</button>
+      </div>
     </div>
   );
 }
